@@ -1,3 +1,5 @@
-# RemoteContent
+# RemoteContentView
 
-A description of this package.
+RemoteContentView used to download and display a contents of URL. 
+
+This package is WIP
