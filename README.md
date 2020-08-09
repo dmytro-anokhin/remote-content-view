@@ -1,1 +1,3 @@
-# remote-content-view
+# RemoteContent
+
+A description of this package.
