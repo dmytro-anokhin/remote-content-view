@@ -19,14 +19,15 @@ public struct RemoteContentView<T, Empty, Progress, Failure, Content> : View whe
 
     let content: (_ value: T) -> Content
 
-    public init(url: URL,
-         decode: @escaping (_ data: Data) throws -> T,
-         empty: @escaping () -> Empty,
-         progress: @escaping () -> Progress,
-         failure: @escaping (_ message: String) -> Failure,
-         content: @escaping (_ value: T) -> Content)
+    public init(urlSession: URLSession = .shared,
+                url: URL,
+                decode: @escaping (_ data: Data) throws -> T,
+                empty: @escaping () -> Empty,
+                progress: @escaping () -> Progress,
+                failure: @escaping (_ message: String) -> Failure,
+                content: @escaping (_ value: T) -> Content)
     {
-        remoteContent = RemoteContent(url: url, decode: decode)
+        remoteContent = RemoteContent(urlSession: urlSession, url: url, decode: decode)
 
         self.empty = empty
         self.progress = progress

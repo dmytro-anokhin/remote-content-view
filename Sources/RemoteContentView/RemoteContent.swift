@@ -18,7 +18,7 @@ final class RemoteContent<T> : ObservableObject {
 
     let decode: (_ data: Data) throws -> T
 
-    init(urlSession: URLSession = .shared, url: URL, decode: @escaping (_ data: Data) throws -> T) {
+    init(urlSession: URLSession, url: URL, decode: @escaping (_ data: Data) throws -> T) {
         self.urlSession = urlSession
         self.url = url
         self.decode = decode
@@ -66,9 +66,9 @@ final class RemoteContent<T> : ObservableObject {
                     return .failure("\(error)")
                 }
             }
-            .catch { error in
+            .catch { error -> Just<LoadingState<T>> in
                 // Process error
-                Just(.failure("\(error)"))
+                Just(.failure(error.localizedDescription))
             }
             .receive(on: RunLoop.main)
             .assign(to: \.loadingState, on: self)

@@ -12,10 +12,17 @@ import SwiftUI
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension RemoteContentView where T: Decodable, Empty == EmptyView, Progress == Text, Failure == Text {
 
-    init(url: URL,
+    init(urlSession: URLSession = .shared,
+         url: URL,
          decode: @escaping (_ data: Data) throws -> T,
          content: @escaping (_ value: T) -> Content)
     {
-        self.init(url: url, decode: decode, empty: { EmptyView() }, progress: { Text("Loading...") }, failure: { Text($0) }, content: content)
+        self.init(urlSession: urlSession,
+                  url: url,
+                  decode: decode,
+                  empty: { EmptyView() },
+                  progress: { Text("Loading...") },
+                  failure: { Text($0) },
+                  content: content)
     }
 }
