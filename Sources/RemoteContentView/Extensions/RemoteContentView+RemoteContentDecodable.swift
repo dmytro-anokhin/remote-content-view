@@ -39,7 +39,7 @@ public extension RemoteContentView where T: RemoteContentDecodable {
 
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public extension RemoteContentView where T: RemoteContentDecodable, Empty == EmptyView, Progress == Text, Failure == Text {
+public extension RemoteContentView where T: RemoteContentDecodable, Empty == EmptyView, Progress == ActivityIndicator, Failure == Text {
 
     init(urlSession: URLSession = .shared,
          url: URL,
@@ -50,7 +50,7 @@ public extension RemoteContentView where T: RemoteContentDecodable, Empty == Emp
                   url: url,
                   type: type,
                   empty: { EmptyView() },
-                  progress: { Text("Loading...") },
+                  progress: { ActivityIndicator() },
                   failure: { Text($0) },
                   content: content)
     }
