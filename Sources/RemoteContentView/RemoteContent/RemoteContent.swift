@@ -127,20 +127,8 @@ public final class DecodableRemoteContent<Item, Decoder> : RemoteContent where I
             .map {
                 .success($0)
             }
-//            .map { result in
-//                // Decode
-//                do {
-//                    let value = try self.decode(result.data)
-//                    return .success(value)
-//                }
-//                catch {
-//                    return .failure("\(error)")
-//                }
-//            }
-            .catch {// error -> Just<LoadingState<T>> in
+            .catch {
                 Just(.failure($0.localizedDescription))
-                // Process error
-                //Just(.failure(error.localizedDescription))
             }
             .receive(on: RunLoop.main)
             .assign(to: \.loadingState, on: self)
