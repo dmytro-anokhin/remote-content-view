@@ -88,26 +88,26 @@ final class AnyRemoteContent<Item> : RemoteContent {
 
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-final class DecodableRemoteContent<Item, Decoder> : RemoteContent where Item : Decodable, Decoder : TopLevelDecoder, Decoder.Input == Data {
+public final class DecodableRemoteContent<Item, Decoder> : RemoteContent where Item : Decodable, Decoder : TopLevelDecoder, Decoder.Input == Data {
 
-    unowned let urlSession: URLSession
+    public unowned let urlSession: URLSession
 
-    let url: URL
+    public let url: URL
 
-    let type: Item.Type
+    public let type: Item.Type
 
-    let decoder: Decoder
+    public let decoder: Decoder
 
-    init(urlSession: URLSession, url: URL, type: Item.Type, decoder: Decoder) {
+    public init(urlSession: URLSession = .shared, url: URL, type: Item.Type, decoder: Decoder) {
         self.urlSession = urlSession
         self.url = url
         self.type = type
         self.decoder = decoder
     }
 
-    @Published private(set) var loadingState: RemoteContentLoadingState<Item> = .none
+    @Published private(set) public var loadingState: RemoteContentLoadingState<Item> = .none
 
-    func load() {
+    public func load() {
         guard cancellable == nil else {
             return
         }
@@ -144,7 +144,7 @@ final class DecodableRemoteContent<Item, Decoder> : RemoteContent where Item : D
             .assign(to: \.loadingState, on: self)
     }
 
-    func cancel() {
+    public func cancel() {
         guard cancellable != nil else {
             return
         }
