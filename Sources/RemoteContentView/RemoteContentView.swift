@@ -10,14 +10,11 @@ import Combine
 
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public struct RemoteContentView<Item, Decoder, Empty, Progress, Failure, Content> : View where Empty : View,
-                                                                                               Progress : View,
-                                                                                               Failure : View,
-                                                                                               Content : View,
-                                                                                               Item : Decodable,
-                                                                                               Decoder : TopLevelDecoder,
-                                                                                               Decoder.Input == Data {
-
+public struct RemoteContentView<Item, Empty, Progress, Failure, Content> : View where Empty : View,
+                                                                                      Progress : View,
+                                                                                      Failure : View,
+                                                                                      Content : View
+{
     let empty: () -> Empty
 
     let progress: () -> Progress
@@ -26,24 +23,39 @@ public struct RemoteContentView<Item, Decoder, Empty, Progress, Failure, Content
 
     let content: (_ value: Item) -> Content
 
-    public init(urlSession: URLSession = .shared,
-                url: URL,
-                type: Item.Type,
-                decoder: Decoder,
-                empty: @escaping () -> Empty,
-                progress: @escaping () -> Progress,
-                failure: @escaping (_ message: String) -> Failure,
-                content: @escaping (_ value: Item) -> Content)
+    public init<R: RemoteContent>(remoteContent: R,
+                                  empty: @escaping () -> Empty,
+                                  progress: @escaping () -> Progress,
+                                  failure: @escaping (_ message: String) -> Failure,
+                                  content: @escaping (_ value: Item) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
+                                                                                       R.Item == Item
     {
-        let decodableRemoteContent = DecodableRemoteContent(urlSession: urlSession, url: url, type: type, decoder: decoder)
-
-        remoteContent = AnyRemoteContent(decodableRemoteContent)
+        self.remoteContent = AnyRemoteContent(remoteContent)
 
         self.empty = empty
         self.progress = progress
         self.failure = failure
         self.content = content
     }
+
+//    public init(urlSession: URLSession = .shared,
+//                url: URL,
+//                type: Item.Type,
+//                decoder: Decoder,
+//                empty: @escaping () -> Empty,
+//                progress: @escaping () -> Progress,
+//                failure: @escaping (_ message: String) -> Failure,
+//                content: @escaping (_ value: Item) -> Content)
+//    {
+//        let decodableRemoteContent = DecodableRemoteContent(urlSession: urlSession, url: url, type: type, decoder: decoder)
+//
+//        remoteContent = AnyRemoteContent(decodableRemoteContent)
+//
+//        self.empty = empty
+//        self.progress = progress
+//        self.failure = failure
+//        self.content = content
+//    }
 
     public var body: some View {
         ZStack {

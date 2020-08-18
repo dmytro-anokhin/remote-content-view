@@ -17,7 +17,7 @@ import Foundation
 ///
 /// This dual purpose allows `View` to switch over the state in its `body` and return different view in each case.
 ///
-enum RemoteContentLoadingState<T> {
+public enum RemoteContentLoadingState<T> {
 
     case none
 
@@ -29,7 +29,7 @@ enum RemoteContentLoadingState<T> {
 }
 
 
-protocol RemoteContentType : ObservableObject {
+public protocol RemoteContent : ObservableObject {
 
     associatedtype Item
 
@@ -41,9 +41,9 @@ protocol RemoteContentType : ObservableObject {
 }
 
 
-final class AnyRemoteContent<Item> : RemoteContentType {
+final class AnyRemoteContent<Item> : RemoteContent {
 
-    init<R: RemoteContentType>(_ remoteContent: R) where R.ObjectWillChangePublisher == ObjectWillChangePublisher, R.Item == Item {
+    init<R: RemoteContent>(_ remoteContent: R) where R.ObjectWillChangePublisher == ObjectWillChangePublisher, R.Item == Item {
         objectWillChangeClosure = {
             remoteContent.objectWillChange
         }
@@ -88,7 +88,7 @@ final class AnyRemoteContent<Item> : RemoteContentType {
 
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-final class DecodableRemoteContent<Item, Decoder> : RemoteContentType where Item : Decodable, Decoder : TopLevelDecoder, Decoder.Input == Data {
+final class DecodableRemoteContent<Item, Decoder> : RemoteContent where Item : Decodable, Decoder : TopLevelDecoder, Decoder.Input == Data {
 
     unowned let urlSession: URLSession
 
