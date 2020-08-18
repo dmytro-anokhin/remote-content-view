@@ -38,25 +38,6 @@ public struct RemoteContentView<Item, Empty, Progress, Failure, Content> : View 
         self.content = content
     }
 
-//    public init(urlSession: URLSession = .shared,
-//                url: URL,
-//                type: Item.Type,
-//                decoder: Decoder,
-//                empty: @escaping () -> Empty,
-//                progress: @escaping () -> Progress,
-//                failure: @escaping (_ message: String) -> Failure,
-//                content: @escaping (_ value: Item) -> Content)
-//    {
-//        let decodableRemoteContent = DecodableRemoteContent(urlSession: urlSession, url: url, type: type, decoder: decoder)
-//
-//        remoteContent = AnyRemoteContent(decodableRemoteContent)
-//
-//        self.empty = empty
-//        self.progress = progress
-//        self.failure = failure
-//        self.content = content
-//    }
-
     public var body: some View {
         ZStack {
             switch remoteContent.loadingState {
