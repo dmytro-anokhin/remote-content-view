@@ -51,16 +51,16 @@ struct PostsView : View {
     let url = URL(string: "https://jsonplaceholder.typicode.com/posts")!
 
     var body: some View {
-        RemoteContentView(url: url,
-                          type: [Post].self,
-                          decoder: JSONDecoder(),
-                          progress: {
-                            PostsList(posts: Post.listPlaceholder)
-                                .redacted(reason: .placeholder)
-                          },
-                          content: {
-                            PostsList(posts: $0)
-                          })
+        let content = DecodableRemoteContent(url: url, type: [Post].self, decoder: JSONDecoder())
+
+        return RemoteContentView(remoteContent: content,
+                                 progress: {
+                                    PostsList(posts: Post.listPlaceholder)
+                                        .redacted(reason: .placeholder)
+                                 },
+                                 content: {
+                                    PostsList(posts: $0)
+                                 })
     }
 }
 
