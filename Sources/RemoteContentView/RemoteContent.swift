@@ -9,8 +9,86 @@ import Combine
 import Foundation
 
 
+/// The state of the loading process.
+///
+/// The `RemoteContentLoadingState` serves dual purpose:
+/// - represents the state of the loading process: none, in progress, success or failure;
+/// - keeps associated value relevant to the state of the loading process.
+///
+/// This dual purpose allows `View` to switch over the state in its `body` and return different view in each case.
+///
+enum RemoteContentLoadingState<T> {
+
+    case none
+
+    case inProgress
+
+    case success(_ value: T)
+
+    case failure(_ message: String)
+}
+
+
+protocol RemoteContentType : ObservableObject {
+
+    associatedtype Item
+
+    var loadingState: RemoteContentLoadingState<Item> { get }
+
+    func load()
+
+    func cancel()
+}
+
+
+final class AnyRemoteContent<Item> : RemoteContentType {
+
+    init<R: RemoteContentType>(_ remoteContent: R) where R.ObjectWillChangePublisher == ObjectWillChangePublisher, R.Item == Item {
+        objectWillChangeClosure = {
+            remoteContent.objectWillChange
+        }
+
+        loadingStateClosure = {
+            remoteContent.loadingState
+        }
+
+        loadClosure = {
+            remoteContent.load()
+        }
+
+        cancelClosure = {
+            remoteContent.cancel()
+        }
+    }
+
+    private let objectWillChangeClosure: () -> ObjectWillChangePublisher
+
+    var objectWillChange: ObservableObjectPublisher {
+        objectWillChangeClosure()
+    }
+
+    private let loadingStateClosure: () -> RemoteContentLoadingState<Item>
+
+    var loadingState: RemoteContentLoadingState<Item> {
+        loadingStateClosure()
+    }
+
+    private let loadClosure: () -> Void
+
+    func load() {
+        loadClosure()
+    }
+
+    private let cancelClosure: () -> Void
+
+    func cancel() {
+        cancelClosure()
+    }
+}
+
+
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-final class RemoteContent<Item, Decoder> : ObservableObject where Item : Decodable, Decoder : TopLevelDecoder, Decoder.Input == Data {
+final class DecodableRemoteContent<Item, Decoder> : RemoteContentType where Item : Decodable, Decoder : TopLevelDecoder, Decoder.Input == Data {
 
     unowned let urlSession: URLSession
 
@@ -27,26 +105,7 @@ final class RemoteContent<Item, Decoder> : ObservableObject where Item : Decodab
         self.decoder = decoder
     }
 
-    /// The state of the loading process.
-    ///
-    /// The `LoadingState` serves dual purpose:
-    /// - represents the state of the loading process: none, in progress, success or failure;
-    /// - keeps associated value relevant to the state of the loading process.
-    ///
-    /// This dual purpose allows `View` to switch over the state in its `body` and return different view in each case.
-    ///
-    enum LoadingState<T> {
-
-        case none
-
-        case inProgress
-
-        case success(_ value: T)
-
-        case failure(_ message: String)
-    }
-
-    @Published private(set) var loadingState: LoadingState<Item> = .none
+    @Published private(set) var loadingState: RemoteContentLoadingState<Item> = .none
 
     func load() {
         guard cancellable == nil else {
@@ -64,7 +123,7 @@ final class RemoteContent<Item, Decoder> : ObservableObject where Item : Decodab
             }
             .decode(type: type, decoder: decoder)
             .map {
-                LoadingState.success($0)
+                .success($0)
             }
 //            .map { result in
 //                // Decode

@@ -35,7 +35,9 @@ public struct RemoteContentView<Item, Decoder, Empty, Progress, Failure, Content
                 failure: @escaping (_ message: String) -> Failure,
                 content: @escaping (_ value: Item) -> Content)
     {
-        remoteContent = RemoteContent(urlSession: urlSession, url: url, type: type, decoder: decoder)
+        let decodableRemoteContent = DecodableRemoteContent(urlSession: urlSession, url: url, type: type, decoder: decoder)
+
+        remoteContent = AnyRemoteContent(decodableRemoteContent)
 
         self.empty = empty
         self.progress = progress
@@ -67,5 +69,5 @@ public struct RemoteContentView<Item, Decoder, Empty, Progress, Failure, Content
         }
     }
 
-    @ObservedObject private var remoteContent: RemoteContent<Item, Decoder>
+    @ObservedObject private var remoteContent: AnyRemoteContent<Item>
 }
