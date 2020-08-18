@@ -2,7 +2,7 @@
 
 The `RemoteContentView` can download a remote content from a URL and display different loading states.
 
-`RemoteContentView` supports JSON, image, and custom types. There is also an option to provide a closure to decode data.
+`RemoteContentView` supports JSON and Plist (using Foundation `Decodable` protocol) and images.
 
 You must provide a view to display the result value, and optionally a view for each loading state.
 
@@ -22,7 +22,9 @@ struct Post : Codable {
 
 let url = URL(string: "https://jsonplaceholder.typicode.com/posts")!
 
-let view = RemoteContentView(url: url, type: [Post].self) { posts in
+let content = DecodableRemoteContent(url: url, type: [Post].self, decoder: JSONDecoder())
+
+let view = RemoteContentView(remoteContent: content) { posts in
     List(posts, id: \Post.id) { post in
         VStack {
             Text(post.title)
@@ -37,26 +39,12 @@ let view = RemoteContentView(url: url, type: [Post].self) { posts in
 ```swift
 let url = URL(string: "http://optipng.sourceforge.net/pngtech/img/lena.png")!
 
-let view = RemoteContentView(url: url, type: UIImage.self) {
+let remoteImage = RemoteImage(url: url)
+
+let view = RemoteContentView(remoteContent: remoteImage) {
     Image(uiImage: $0)
 }
 ```
-
-### Loading and Displaying custom types
-
-You can provide `decode` closure to control decoding routine.
-
-```swift
-let url = URL(string: "https://jsonplaceholder.typicode.com/posts")!
-
-let view = RemoteContentView(url: url, decode: { data in
-    String(data: data, encoding: .utf8) ?? ""
-}) { string in
-    Text(string)
-}
-```
-
-Alternatively, you can confirm a type to `RemoteContentDecodable` protocol by implementing `init?(data: Data)`.
 
 
 ### Loading States
@@ -64,7 +52,7 @@ Alternatively, you can confirm a type to `RemoteContentDecodable` protocol by im
 `RemoteContentView` supports 4 customizable loading states:
 
 ```swift
-let view = RemoteContentView(url: url, type: [Post].self,
+let view = RemoteContentView(remoteContent: remoteImage,
                              empty: {
                                 EmptyView()
                              },
