@@ -6,10 +6,17 @@
 //
 
 import SwiftUI
+import Combine
 
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public struct RemoteContentView<T, Empty, Progress, Failure, Content> : View where Empty : View, Progress : View, Failure : View, Content : View {
+public struct RemoteContentView<Item, Decoder, Empty, Progress, Failure, Content> : View where Empty : View,
+                                                                                               Progress : View,
+                                                                                               Failure : View,
+                                                                                               Content : View,
+                                                                                               Item : Decodable,
+                                                                                               Decoder : TopLevelDecoder,
+                                                                                               Decoder.Input == Data {
 
     let empty: () -> Empty
 
@@ -17,17 +24,18 @@ public struct RemoteContentView<T, Empty, Progress, Failure, Content> : View whe
 
     let failure: (_ message: String) -> Failure
 
-    let content: (_ value: T) -> Content
+    let content: (_ value: Item) -> Content
 
     public init(urlSession: URLSession = .shared,
                 url: URL,
-                decode: @escaping (_ data: Data) throws -> T,
+                type: Item.Type,
+                decoder: Decoder,
                 empty: @escaping () -> Empty,
                 progress: @escaping () -> Progress,
                 failure: @escaping (_ message: String) -> Failure,
-                content: @escaping (_ value: T) -> Content)
+                content: @escaping (_ value: Item) -> Content)
     {
-        remoteContent = RemoteContent(urlSession: urlSession, url: url, decode: decode)
+        remoteContent = RemoteContent(urlSession: urlSession, url: url, type: type, decoder: decoder)
 
         self.empty = empty
         self.progress = progress
@@ -59,5 +67,5 @@ public struct RemoteContentView<T, Empty, Progress, Failure, Content> : View whe
         }
     }
 
-    @ObservedObject private var remoteContent: RemoteContent<T>
+    @ObservedObject private var remoteContent: RemoteContent<Item, Decoder>
 }

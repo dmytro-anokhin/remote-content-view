@@ -14,7 +14,7 @@ struct Post : Codable {
 
 let url = URL(string: "https://jsonplaceholder.typicode.com/posts")!
 
-let view = RemoteContentView(url: url, type: [Post].self) { posts in
+let view = RemoteContentView(url: url, type: [Post].self, decoder: JSONDecoder()) { posts in
     List(posts, id: \Post.id) { post in
         VStack {
             Text(post.title)

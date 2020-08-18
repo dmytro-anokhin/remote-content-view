@@ -25,11 +25,23 @@ struct PostsList : View {
 
     var body: some View {
         List(posts, id: \Post.id) { post in
-            VStack(alignment: .leading) {
-                Text(post.title)
-                Text(post.body)
+            NavigationLink(destination: PostView()) {
+                VStack(alignment: .leading) {
+                    Text(post.title)
+                        .lineLimit(1)
+                    Text(post.body)
+                        .lineLimit(2)
+                }
             }
         }
+    }
+}
+
+
+struct PostView : View {
+
+    var body: some View {
+        Text("Post")
     }
 }
 
@@ -41,6 +53,7 @@ struct PostsView : View {
     var body: some View {
         RemoteContentView(url: url,
                           type: [Post].self,
+                          decoder: JSONDecoder(),
                           progress: {
                             PostsList(posts: Post.listPlaceholder)
                                 .redacted(reason: .placeholder)
@@ -48,9 +61,16 @@ struct PostsView : View {
                           content: {
                             PostsList(posts: $0)
                           })
-            .animation(.default)
     }
 }
 
+let liveView =
+    //NavigationV(destination: PostView()) {
+    NavigationView {
+        PostsView()
+    }
+    .navigationTitle("Posts")
+    .navigationViewStyle(StackNavigationViewStyle())
 
-PlaygroundSupport.PlaygroundPage.current.setLiveView(PostsView())
+
+PlaygroundSupport.PlaygroundPage.current.setLiveView(liveView)

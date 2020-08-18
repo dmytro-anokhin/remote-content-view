@@ -10,18 +10,21 @@ import Foundation
 
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-final class RemoteContent<T> : ObservableObject {
+final class RemoteContent<Item, Decoder> : ObservableObject where Item : Decodable, Decoder : TopLevelDecoder, Decoder.Input == Data {
 
     unowned let urlSession: URLSession
 
     let url: URL
 
-    let decode: (_ data: Data) throws -> T
+    let type: Item.Type
 
-    init(urlSession: URLSession, url: URL, decode: @escaping (_ data: Data) throws -> T) {
+    let decoder: Decoder
+
+    init(urlSession: URLSession, url: URL, type: Item.Type, decoder: Decoder) {
         self.urlSession = urlSession
         self.url = url
-        self.decode = decode
+        self.type = type
+        self.decoder = decoder
     }
 
     /// The state of the loading process.
@@ -43,7 +46,7 @@ final class RemoteContent<T> : ObservableObject {
         case failure(_ message: String)
     }
 
-    @Published private(set) var loadingState: LoadingState<T> = .none
+    @Published private(set) var loadingState: LoadingState<Item> = .none
 
     func load() {
         guard cancellable == nil else {
@@ -56,19 +59,27 @@ final class RemoteContent<T> : ObservableObject {
         // Start loading
         cancellable = urlSession
             .dataTaskPublisher(for: url)
-            .map { result in
-                // Decode
-                do {
-                    let value = try self.decode(result.data)
-                    return .success(value)
-                }
-                catch {
-                    return .failure("\(error)")
-                }
+            .map {
+                $0.data
             }
-            .catch { error -> Just<LoadingState<T>> in
+            .decode(type: type, decoder: decoder)
+            .map {
+                LoadingState.success($0)
+            }
+//            .map { result in
+//                // Decode
+//                do {
+//                    let value = try self.decode(result.data)
+//                    return .success(value)
+//                }
+//                catch {
+//                    return .failure("\(error)")
+//                }
+//            }
+            .catch {// error -> Just<LoadingState<T>> in
+                Just(.failure($0.localizedDescription))
                 // Process error
-                Just(.failure(error.localizedDescription))
+                //Just(.failure(error.localizedDescription))
             }
             .receive(on: RunLoop.main)
             .assign(to: \.loadingState, on: self)
