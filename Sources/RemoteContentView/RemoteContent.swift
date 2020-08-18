@@ -88,8 +88,10 @@ final class AnyRemoteContent<Item> : RemoteContent {
 
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public final class DecodableRemoteContent<Item, Decoder> : RemoteContent where Item : Decodable, Decoder : TopLevelDecoder, Decoder.Input == Data {
-
+public final class DecodableRemoteContent<Item, Decoder> : RemoteContent where Item : Decodable,
+                                                                               Decoder : TopLevelDecoder,
+                                                                               Decoder.Input == Data
+{
     public unowned let urlSession: URLSession
 
     public let url: URL
