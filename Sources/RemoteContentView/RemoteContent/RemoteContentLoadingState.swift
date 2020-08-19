@@ -14,13 +14,35 @@
 ///
 /// This dual purpose allows the view to use switch statement in its `body` and return different view in each case.
 ///
-public enum RemoteContentLoadingState<T> {
+public enum RemoteContentLoadingState<Value> {
 
     case none
 
     case inProgress
 
-    case success(_ value: T)
+    case success(_ value: Value)
 
-    case failure(_ message: String)
+    case failure(_ error: Error)
+}
+
+
+public extension RemoteContentLoadingState {
+
+    var isInProgress: Bool {
+        switch self {
+            case .inProgress:
+                return true
+            default:
+                return false
+        }
+    }
+
+    var isComplete: Bool {
+        switch self {
+            case .success, .failure:
+                return true
+            default:
+                return false
+        }
+    }
 }

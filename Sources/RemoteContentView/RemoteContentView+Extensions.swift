@@ -14,9 +14,9 @@ public extension RemoteContentView where Empty == EmptyView {
 
     init<R: RemoteContent>(remoteContent: R,
                            progress: @escaping () -> Progress,
-                           failure: @escaping (_ message: String) -> Failure,
-                           content: @escaping (_ value: Item) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
-                                                                                R.Item == Item
+                           failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
+                           content: @escaping (_ value: Value) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
+                                                                                 R.Value == Value
     {
         self.init(remoteContent: remoteContent,
                   empty: { EmptyView() },
@@ -31,9 +31,9 @@ public extension RemoteContentView where Empty == EmptyView {
 public extension RemoteContentView where Empty == EmptyView, Progress == ActivityIndicator {
 
     init<R: RemoteContent>(remoteContent: R,
-                           failure: @escaping (_ message: String) -> Failure,
-                           content: @escaping (_ value: Item) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
-                                                                                R.Item == Item
+                           failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
+                           content: @escaping (_ value: Value) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
+                                                                                 R.Value == Value
     {
         self.init(remoteContent: remoteContent,
                   empty: { EmptyView() },
@@ -49,13 +49,13 @@ public extension RemoteContentView where Empty == EmptyView, Failure == Text {
 
     init<R: RemoteContent>(remoteContent: R,
                            progress: @escaping () -> Progress,
-                           content: @escaping (_ value: Item) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
-                                                                                R.Item == Item
+                           content: @escaping (_ value: Value) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
+                                                                                 R.Value == Value
     {
         self.init(remoteContent: remoteContent,
                   empty: { EmptyView() },
                   progress: progress,
-                  failure: { Text($0) },
+                  failure: { error, _ in Text(error.localizedDescription) },
                   content: content)
     }
 }
@@ -65,13 +65,13 @@ public extension RemoteContentView where Empty == EmptyView, Failure == Text {
 public extension RemoteContentView where Empty == EmptyView, Progress == ActivityIndicator, Failure == Text {
 
     init<R: RemoteContent>(remoteContent: R,
-                           content: @escaping (_ value: Item) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
-                                                                                R.Item == Item
+                           content: @escaping (_ value: Value) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
+                                                                                 R.Value == Value
     {
         self.init(remoteContent: remoteContent,
                   empty: { EmptyView() },
                   progress: { ActivityIndicator() },
-                  failure: { Text($0) },
+                  failure: { error, _ in Text(error.localizedDescription) },
                   content: content)
     }
 }

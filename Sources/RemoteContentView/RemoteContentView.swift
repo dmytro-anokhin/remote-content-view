@@ -10,7 +10,7 @@ import Combine
 
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public struct RemoteContentView<Item, Empty, Progress, Failure, Content> : View where Empty : View,
+public struct RemoteContentView<Value, Empty, Progress, Failure, Content> : View where Empty : View,
                                                                                       Progress : View,
                                                                                       Failure : View,
                                                                                       Content : View
@@ -19,16 +19,16 @@ public struct RemoteContentView<Item, Empty, Progress, Failure, Content> : View 
 
     let progress: () -> Progress
 
-    let failure: (_ message: String) -> Failure
+    let failure: (_ error: Error, _ retry: @escaping () -> Void) -> Failure
 
-    let content: (_ value: Item) -> Content
+    let content: (_ value: Value) -> Content
 
     public init<R: RemoteContent>(remoteContent: R,
                                   empty: @escaping () -> Empty,
                                   progress: @escaping () -> Progress,
-                                  failure: @escaping (_ message: String) -> Failure,
-                                  content: @escaping (_ value: Item) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
-                                                                                       R.Item == Item
+                                  failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
+                                  content: @escaping (_ value: Value) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
+                                                                                        R.Value == Value
     {
         self.remoteContent = AnyRemoteContent(remoteContent)
 
@@ -50,8 +50,10 @@ public struct RemoteContentView<Item, Empty, Progress, Failure, Content> : View 
                 case .success(let value):
                     content(value)
 
-                case .failure(let message):
-                    failure(message)
+                case .failure(let error):
+                    failure(error) {
+                        remoteContent.load()
+                    }
             }
         }
         .onAppear {
@@ -62,5 +64,5 @@ public struct RemoteContentView<Item, Empty, Progress, Failure, Content> : View 
         }
     }
 
-    @ObservedObject private var remoteContent: AnyRemoteContent<Item>
+    @ObservedObject private var remoteContent: AnyRemoteContent<Value>
 }

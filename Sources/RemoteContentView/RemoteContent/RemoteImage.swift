@@ -12,6 +12,11 @@ import Combine
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class RemoteImage : RemoteContent {
 
+    public enum Error : Swift.Error {
+
+        case decode
+    }
+
     public unowned let urlSession: URLSession
 
     public let url: URL
@@ -24,7 +29,7 @@ public final class RemoteImage : RemoteContent {
     @Published private(set) public var loadingState: RemoteContentLoadingState<UIImage> = .none
 
     public func load() {
-        guard cancellable == nil else {
+        guard !loadingState.isInProgress else {
             return
         }
 
@@ -36,20 +41,20 @@ public final class RemoteImage : RemoteContent {
             .dataTaskPublisher(for: url)
             .map {
                 guard let value = UIImage(data: $0.data) else {
-                    return .failure("Failed to decode the image")
+                    return .failure(Error.decode)
                 }
 
                 return .success(value)
             }
             .catch {
-                Just(.failure($0.localizedDescription))
+                Just(.failure($0))
             }
             .receive(on: RunLoop.main)
             .assign(to: \.loadingState, on: self)
     }
 
     public func cancel() {
-        guard cancellable != nil else {
+        guard loadingState.isInProgress else {
             return
         }
 

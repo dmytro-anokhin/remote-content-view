@@ -11,9 +11,9 @@ import Foundation
 
 public protocol RemoteContent : ObservableObject {
 
-    associatedtype Item
+    associatedtype Value
 
-    var loadingState: RemoteContentLoadingState<Item> { get }
+    var loadingState: RemoteContentLoadingState<Value> { get }
 
     func load()
 
@@ -21,9 +21,9 @@ public protocol RemoteContent : ObservableObject {
 }
 
 
-final class AnyRemoteContent<Item> : RemoteContent {
+final class AnyRemoteContent<Value> : RemoteContent {
 
-    init<R: RemoteContent>(_ remoteContent: R) where R.ObjectWillChangePublisher == ObjectWillChangePublisher, R.Item == Item {
+    init<R: RemoteContent>(_ remoteContent: R) where R.ObjectWillChangePublisher == ObjectWillChangePublisher, R.Value == Value {
         objectWillChangeClosure = {
             remoteContent.objectWillChange
         }
@@ -47,9 +47,9 @@ final class AnyRemoteContent<Item> : RemoteContent {
         objectWillChangeClosure()
     }
 
-    private let loadingStateClosure: () -> RemoteContentLoadingState<Item>
+    private let loadingStateClosure: () -> RemoteContentLoadingState<Value>
 
-    var loadingState: RemoteContentLoadingState<Item> {
+    var loadingState: RemoteContentLoadingState<Value> {
         loadingStateClosure()
     }
 
