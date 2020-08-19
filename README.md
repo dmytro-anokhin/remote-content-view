@@ -34,6 +34,12 @@ let view = RemoteContentView(remoteContent: content) { posts in
 }
 ```
 
+Note, if you use default JSON decoder you can omit the last parameter:
+
+```swift
+let content = DecodableRemoteContent(url: url, type: [Post].self)
+```
+
 ### Loading and Displaying an Image
 
 ```swift

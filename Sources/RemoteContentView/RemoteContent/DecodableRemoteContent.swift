@@ -71,3 +71,12 @@ public final class DecodableRemoteContent<Item, Decoder> : RemoteContent where I
 
     private var cancellable: AnyCancellable?
 }
+
+
+@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+public extension DecodableRemoteContent where Decoder == JSONDecoder {
+
+    convenience init(urlSession: URLSession = .shared, url: URL, type: Item.Type) {
+        self.init(urlSession: urlSession, url: url, type: type, decoder: JSONDecoder())
+    }
+}

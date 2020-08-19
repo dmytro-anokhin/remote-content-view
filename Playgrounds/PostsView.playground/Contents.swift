@@ -14,7 +14,7 @@ struct Post : Codable {
 
 let url = URL(string: "https://jsonplaceholder.typicode.com/posts")!
 
-let content = DecodableRemoteContent(url: url, type: [Post].self, decoder: JSONDecoder())
+let content = DecodableRemoteContent(url: url, type: [Post].self)
 
 let view = RemoteContentView(remoteContent: content) { posts in
     List(posts, id: \Post.id) { post in
