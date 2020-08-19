@@ -65,8 +65,11 @@ let view = RemoteContentView(remoteContent: remoteImage,
                              progress: {
                                 Text("Loading...")
                              },
-                             failure: { errorMessage in
-                                Text(errorMessage)
+                             failure: { error, retry in
+                                VStack {
+                                    Text(error)
+                                    Button("Retry", action: retry)
+                                }
                              },
                              content: { posts in
                                 List(posts, id: \Post.id) { post in
