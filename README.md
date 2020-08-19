@@ -2,7 +2,7 @@
 
 The `RemoteContentView` can download a remote content from a URL and display different loading states.
 
-`RemoteContentView` supports JSON and Plist (using Foundation `Decodable` protocol) and images.
+The package supports JSON and Plist (using Foundation `Decodable` protocol), images, and custom types.
 
 You must provide a view to display the result value, and optionally a view for each loading state.
 
@@ -73,4 +73,25 @@ let view = RemoteContentView(remoteContent: remoteImage,
 
 ```
 
+### Implementing Custom RemoteContent
 
+The `RemoteContent` protocol defines objects that provide content and manage loading state. 
+
+```swift
+public protocol RemoteContent : ObservableObject {
+
+    associatedtype Item
+
+    var loadingState: RemoteContentLoadingState<Item> { get }
+
+    func load()
+
+    func cancel()
+}
+```
+
+The package provides two implementations:
+- `DecodableRemoteContent` for a content, loaded from a URL, represented by `Decodable` objects;
+- `RemoteImage` for images.
+
+You can implement your own `RemoteContent` object if you need custom loading or to make the view work with existing content providers. You can find an example in CustomRemoteContent.playground.
