@@ -29,7 +29,7 @@ public final class DecodableRemoteContent<Value, Decoder> : RemoteContent where 
         self.decoder = decoder
     }
 
-    @Published private(set) public var loadingState: RemoteContentLoadingState<Value> = .none
+    @Published private(set) public var loadingState: RemoteContentLoadingState<Value> = .initial
 
     public func load() {
         guard !loadingState.isInProgress else {
@@ -62,7 +62,7 @@ public final class DecodableRemoteContent<Value, Decoder> : RemoteContent where 
         }
 
         // Reset loading state
-        loadingState = .none
+        loadingState = .initial
 
         // Stop loading
         cancellable?.cancel()

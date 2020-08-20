@@ -41,7 +41,7 @@ public struct RemoteContentView<Value, Empty, Progress, Failure, Content> : View
     public var body: some View {
         ZStack {
             switch remoteContent.loadingState {
-                case .none:
+                case .initial:
                     empty()
 
                 case .inProgress:
