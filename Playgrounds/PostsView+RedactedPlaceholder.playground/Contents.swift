@@ -25,51 +25,53 @@ struct PostsList : View {
 
     var body: some View {
         List(posts, id: \Post.id) { post in
-            NavigationLink(destination: PostView()) {
-                VStack(alignment: .leading) {
-                    Text(post.title)
-                        .lineLimit(1)
-                    Text(post.body)
-                        .lineLimit(2)
-                }
+            NavigationLink(destination: PostDetailView(post: post)) {
+                PostRowView(post: post)
             }
         }
     }
 }
 
 
-struct PostView : View {
+struct PostRowView : View {
+
+    let post: Post
 
     var body: some View {
-        Text("Post")
+        VStack(alignment: .leading) {
+            Text(post.title)
+            Text(post.body)
+        }
     }
 }
 
 
-struct PostsView : View {
+struct PostDetailView : View {
 
-    let url = URL(string: "https://jsonplaceholder.typicode.com/posts")!
+    let post: Post
 
     var body: some View {
-        let content = DecodableRemoteContent(url: url, type: [Post].self)
-
-        return RemoteContentView(remoteContent: content,
-                                 progress: {
-                                    PostsList(posts: Post.listPlaceholder)
-                                        .redacted(reason: .placeholder)
-                                 },
-                                 content: {
-                                    PostsList(posts: $0)
-                                 })
+        Text(post.body)
+            .navigationTitle(post.title)
+            .navigationBarTitleDisplayMode(.inline)
     }
 }
+
+
+let url = URL(string: "https://jsonplaceholder.typicode.com/posts")!
+let content = DecodableRemoteContent(url: url, type: [Post].self)
 
 let liveView =
-    //NavigationV(destination: PostView()) {
     NavigationView {
-        PostsView()
+        RemoteContentView(remoteContent: content,
+                          progress: {
+                            PostsList(posts: Post.listPlaceholder).redacted(reason: .placeholder)
+                          },
+                          content: {
+                            PostsList(posts: $0)
+                          })
+            .navigationTitle("Posts")
     }
-    .navigationTitle("Posts")
     .navigationViewStyle(StackNavigationViewStyle())
 
 
