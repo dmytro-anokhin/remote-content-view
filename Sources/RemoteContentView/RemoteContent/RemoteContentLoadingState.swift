@@ -36,13 +36,4 @@ public extension RemoteContentLoadingState {
                 return false
         }
     }
-
-    var isComplete: Bool {
-        switch self {
-            case .success, .failure:
-                return true
-            default:
-                return false
-        }
-    }
 }
