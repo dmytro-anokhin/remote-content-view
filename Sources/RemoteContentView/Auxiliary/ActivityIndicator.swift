@@ -30,17 +30,14 @@ struct ActivityIndicatorImpl: UIViewRepresentable {
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public struct ActivityIndicator: View {
 
-    public let fallbackKey: String
-
-    public init(fallbackKey: String = "ActivityIndicator.InProgress") {
-        self.fallbackKey = fallbackKey
+    public init() {
     }
 
     public var body: some View {
         #if canImport(UIKit)
             ActivityIndicatorImpl()
         #else
-            Text(fallbackKey)
+            EmptyView()
         #endif
     }
 }
