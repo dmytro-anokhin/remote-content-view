@@ -13,14 +13,15 @@ import Combine
 public extension RemoteContentView where Empty == EmptyView {
 
     init<R: RemoteContent>(remoteContent: R,
-                           progress: @escaping () -> Progress,
+                           inProgress: @escaping (_ progress: Progress) -> InProgress,
                            failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
                            content: @escaping (_ value: Value) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
-                                                                                 R.Value == Value
+                                                                                 R.Value == Value,
+                                                                                 R.Progress == Progress
     {
         self.init(remoteContent: remoteContent,
                   empty: { EmptyView() },
-                  progress: progress,
+                  inProgress: inProgress,
                   failure: failure,
                   content: content)
     }
@@ -28,16 +29,17 @@ public extension RemoteContentView where Empty == EmptyView {
 
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public extension RemoteContentView where Empty == EmptyView, Progress == ActivityIndicator {
+public extension RemoteContentView where Empty == EmptyView, InProgress == ActivityIndicator {
 
     init<R: RemoteContent>(remoteContent: R,
                            failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
                            content: @escaping (_ value: Value) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
-                                                                                 R.Value == Value
+                                                                                 R.Value == Value,
+                                                                                 R.Progress == Progress
     {
         self.init(remoteContent: remoteContent,
                   empty: { EmptyView() },
-                  progress: { ActivityIndicator() },
+                  inProgress: { _ in ActivityIndicator() },
                   failure: failure,
                   content: content)
     }
@@ -48,13 +50,14 @@ public extension RemoteContentView where Empty == EmptyView, Progress == Activit
 public extension RemoteContentView where Empty == EmptyView, Failure == Text {
 
     init<R: RemoteContent>(remoteContent: R,
-                           progress: @escaping () -> Progress,
+                           inProgress: @escaping (_ progress: Progress) -> InProgress,
                            content: @escaping (_ value: Value) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
-                                                                                 R.Value == Value
+                                                                                 R.Value == Value,
+                                                                                 R.Progress == Progress
     {
         self.init(remoteContent: remoteContent,
                   empty: { EmptyView() },
-                  progress: progress,
+                  inProgress: inProgress,
                   failure: { error, _ in Text(error.localizedDescription) },
                   content: content)
     }
@@ -62,15 +65,16 @@ public extension RemoteContentView where Empty == EmptyView, Failure == Text {
 
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public extension RemoteContentView where Empty == EmptyView, Progress == ActivityIndicator, Failure == Text {
+public extension RemoteContentView where Empty == EmptyView, InProgress == ActivityIndicator, Failure == Text {
 
     init<R: RemoteContent>(remoteContent: R,
                            content: @escaping (_ value: Value) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
-                                                                                 R.Value == Value
+                                                                                 R.Value == Value,
+                                                                                 R.Progress == Progress
     {
         self.init(remoteContent: remoteContent,
                   empty: { EmptyView() },
-                  progress: { ActivityIndicator() },
+                  inProgress: { _ in ActivityIndicator() },
                   failure: { error, _ in Text(error.localizedDescription) },
                   content: content)
     }

@@ -25,35 +25,11 @@ struct PostsList : View {
 
     var body: some View {
         List(posts, id: \Post.id) { post in
-            NavigationLink(destination: PostDetailView(post: post)) {
-                PostRowView(post: post)
+            VStack(alignment: .leading) {
+                Text(post.title)
+                Text(post.body)
             }
         }
-    }
-}
-
-
-struct PostRowView : View {
-
-    let post: Post
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text(post.title)
-            Text(post.body)
-        }
-    }
-}
-
-
-struct PostDetailView : View {
-
-    let post: Post
-
-    var body: some View {
-        Text(post.body)
-            .navigationTitle(post.title)
-            .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -61,18 +37,12 @@ struct PostDetailView : View {
 let url = URL(string: "https://jsonplaceholder.typicode.com/posts")!
 let content = DecodableRemoteContent(url: url, type: [Post].self)
 
-let liveView =
-    NavigationView {
-        RemoteContentView(remoteContent: content,
-                          progress: {
-                            PostsList(posts: Post.listPlaceholder).redacted(reason: .placeholder)
-                          },
-                          content: {
-                            PostsList(posts: $0)
-                          })
-            .navigationTitle("Posts")
-    }
-    .navigationViewStyle(StackNavigationViewStyle())
+let view = RemoteContentView(remoteContent: content,
+                             inProgress: { _ in
+                                PostsList(posts: Post.listPlaceholder).redacted(reason: .placeholder)
+                             },
+                             content: {
+                                PostsList(posts: $0)
+                             })
 
-
-PlaygroundSupport.PlaygroundPage.current.setLiveView(liveView)
+PlaygroundSupport.PlaygroundPage.current.setLiveView(view)

@@ -10,14 +10,14 @@ import Combine
 
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public struct RemoteContentView<Value, Empty, Progress, Failure, Content> : View where Empty : View,
-                                                                                      Progress : View,
-                                                                                      Failure : View,
-                                                                                      Content : View
+public struct RemoteContentView<Value, Progress, Empty, InProgress, Failure, Content> : View where Empty : View,
+                                                                                                   InProgress : View,
+                                                                                                   Failure : View,
+                                                                                                   Content : View
 {
     let empty: () -> Empty
 
-    let progress: () -> Progress
+    let inProgress: (_ progress: Progress) -> InProgress
 
     let failure: (_ error: Error, _ retry: @escaping () -> Void) -> Failure
 
@@ -25,15 +25,16 @@ public struct RemoteContentView<Value, Empty, Progress, Failure, Content> : View
 
     public init<R: RemoteContent>(remoteContent: R,
                                   empty: @escaping () -> Empty,
-                                  progress: @escaping () -> Progress,
+                                  inProgress: @escaping (_ progress: Progress) -> InProgress,
                                   failure: @escaping (_ error: Error, _ retry: @escaping () -> Void) -> Failure,
                                   content: @escaping (_ value: Value) -> Content) where R.ObjectWillChangePublisher == ObservableObjectPublisher,
-                                                                                        R.Value == Value
+                                                                                        R.Value == Value,
+                                                                                        R.Progress == Progress
     {
         self.remoteContent = AnyRemoteContent(remoteContent)
 
         self.empty = empty
-        self.progress = progress
+        self.inProgress = inProgress
         self.failure = failure
         self.content = content
     }
@@ -44,8 +45,8 @@ public struct RemoteContentView<Value, Empty, Progress, Failure, Content> : View
                 case .initial:
                     empty()
 
-                case .inProgress:
-                    progress()
+                case .inProgress(let progress):
+                    inProgress(progress)
 
                 case .success(let value):
                     content(value)
@@ -64,5 +65,5 @@ public struct RemoteContentView<Value, Empty, Progress, Failure, Content> : View
         }
     }
 
-    @ObservedObject private var remoteContent: AnyRemoteContent<Value>
+    @ObservedObject private var remoteContent: AnyRemoteContent<Value, Progress>
 }

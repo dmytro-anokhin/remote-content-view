@@ -26,7 +26,7 @@ public final class RemoteImage : RemoteContent {
         self.url = url
     }
 
-    @Published private(set) public var loadingState: RemoteContentLoadingState<UIImage> = .initial
+    @Published private(set) public var loadingState: RemoteContentLoadingState<UIImage, Float?> = .initial
 
     public func load() {
         guard !loadingState.isInProgress else {
@@ -34,7 +34,7 @@ public final class RemoteImage : RemoteContent {
         }
 
         // Set state to in progress
-        loadingState = .inProgress
+        loadingState = .inProgress(nil)
 
         // Start loading
         cancellable = urlSession

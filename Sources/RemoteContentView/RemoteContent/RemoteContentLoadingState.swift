@@ -14,11 +14,11 @@
 ///
 /// This dual purpose allows the view to use switch statement in its `body` and return different view in each case.
 ///
-public enum RemoteContentLoadingState<Value> {
+public enum RemoteContentLoadingState<Value, Progress> {
 
     case initial
 
-    case inProgress
+    case inProgress(_ progress: Progress)
 
     case success(_ value: Value)
 

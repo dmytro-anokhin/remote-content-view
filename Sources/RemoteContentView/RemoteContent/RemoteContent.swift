@@ -13,7 +13,9 @@ public protocol RemoteContent : ObservableObject {
 
     associatedtype Value
 
-    var loadingState: RemoteContentLoadingState<Value> { get }
+    associatedtype Progress
+
+    var loadingState: RemoteContentLoadingState<Value, Progress> { get }
 
     func load()
 
@@ -21,9 +23,11 @@ public protocol RemoteContent : ObservableObject {
 }
 
 
-final class AnyRemoteContent<Value> : RemoteContent {
+final class AnyRemoteContent<Value, Progress> : RemoteContent {
 
-    init<R: RemoteContent>(_ remoteContent: R) where R.ObjectWillChangePublisher == ObjectWillChangePublisher, R.Value == Value {
+    init<R: RemoteContent>(_ remoteContent: R) where R.ObjectWillChangePublisher == ObjectWillChangePublisher,
+                                                     R.Value == Value,
+                                                     R.Progress == Progress {
         objectWillChangeClosure = {
             remoteContent.objectWillChange
         }
@@ -47,9 +51,9 @@ final class AnyRemoteContent<Value> : RemoteContent {
         objectWillChangeClosure()
     }
 
-    private let loadingStateClosure: () -> RemoteContentLoadingState<Value>
+    private let loadingStateClosure: () -> RemoteContentLoadingState<Value, Progress>
 
-    var loadingState: RemoteContentLoadingState<Value> {
+    var loadingState: RemoteContentLoadingState<Value, Progress> {
         loadingStateClosure()
     }
 
