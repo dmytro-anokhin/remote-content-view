@@ -58,12 +58,12 @@ let view = RemoteContentView(remoteContent: remoteImage) {
 `RemoteContentView` supports 4 customizable loading states:
 
 ```swift
-let view = RemoteContentView(remoteContent: remoteImage,
+let view = RemoteContentView(remoteContent: remoteContent,
                              empty: {
                                 EmptyView()
                              },
-                             progress: {
-                                Text("Loading...")
+                             progress: { progress in
+                                Text("Loading in progress: \(progress)")
                              },
                              failure: { error, retry in
                                 VStack {
@@ -89,9 +89,11 @@ The `RemoteContent` protocol defines objects that provide content and manage loa
 ```swift
 public protocol RemoteContent : ObservableObject {
 
-    associatedtype Item
+    associatedtype Value
+    
+    associatedtype Progress
 
-    var loadingState: RemoteContentLoadingState<Item> { get }
+    var loadingState: RemoteContentLoadingState<Value, Progress> { get }
 
     func load()
 
